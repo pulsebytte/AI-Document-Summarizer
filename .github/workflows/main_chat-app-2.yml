@@ -32,6 +32,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         
+      - name: run app
+        run: |
+          streamlit run streamlit_app.py  
+        
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
