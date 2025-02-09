@@ -4,12 +4,12 @@ import tempfile
 import streamlit as st
 from openai import AzureOpenAI
 from typing import List, Dict, Optional, Union
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 
 class AzureDocumentAssistant:
     def __init__(self):
         # Load environment variables from .env file
-        # load_dotenv()
+        load_dotenv()
         
         # Get Azure OpenAI configuration from .env
         self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
@@ -295,7 +295,7 @@ class AzureDocumentAssistant:
 
 def main():
     """Main application function with improved error handling and UI"""
-    """ if not os.path.exists('.env'):
+    if not os.path.exists('.env'):
         st.error("❌ .env file not found!")
         st.info("""
         Please create a .env file in your project directory with the following variables:
@@ -307,7 +307,7 @@ def main():
         ```
         """)
         st.stop()
-        """
+        
 
     st.set_page_config(
         page_title="📚 Advanced Document AI Assistant",
