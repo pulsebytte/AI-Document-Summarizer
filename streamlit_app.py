@@ -266,16 +266,29 @@ class AzureDocumentAssistant:
             return None
 
     def _process_query(self, query: str, documents: List[Dict]) -> str:
-        """Process and enhance the user query"""
+        """Process and enhance the user query with improved document reference handling"""
         query_lower = query.lower()
         summary_keywords = {"summarize", "summary", "summarise"}
         
         if any(keyword in query_lower for keyword in summary_keywords):
+            # Check for exact document references first
+            doc_reference = query_lower.replace("summarize", "").replace("summary", "").replace("summarise", "").strip()
+            
+            # Look for the document by filename or reference number
             for doc in documents:
-                doc_reference = f"document {doc['index'] + 1}"
-                if doc_reference in query_lower or doc['filename'].lower() in query_lower:
+                # Check if the query matches the filename (without extension)
+                filename_without_ext = os.path.splitext(doc['filename'])[0].lower()
+                if (doc_reference == filename_without_ext or 
+                    doc_reference == doc['filename'].lower() or
+                    doc_reference == f"document {doc['index'] + 1}" or 
+                    doc_reference == str(doc['index'] + 1)):
                     return f"Provide a detailed summary of the document named '{doc['filename']}'. Focus on its key points and main ideas."
             
+            # If no specific document is found, provide feedback
+            if doc_reference:
+                return f"I notice you want to summarize '{doc_reference}', but I couldn't find that specific document. Please make sure the document name is correct or specify the document number. Available documents: " + ", ".join(f"Document {d['index'] + 1}: {d['filename']}" for d in documents)
+            
+            # If no specific document is mentioned, summarize all
             return "Provide a comprehensive summary of all uploaded documents, covering key points from each document."
         
         return query
