@@ -295,7 +295,7 @@ class AzureDocumentAssistant:
 
 def main():
     """Main application function with improved error handling and UI"""
-    if not os.path.exists('.env'):
+    """ if not os.path.exists('.env'):
         st.error("❌ .env file not found!")
         st.info("""
         Please create a .env file in your project directory with the following variables:
@@ -307,6 +307,7 @@ def main():
         ```
         """)
         st.stop()
+        """
 
     st.set_page_config(
         page_title="📚 Advanced Document AI Assistant",
