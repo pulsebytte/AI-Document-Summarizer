@@ -4,12 +4,12 @@ import tempfile
 import streamlit as st
 from openai import AzureOpenAI
 from typing import List, Dict, Optional, Union
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 class AzureDocumentAssistant:
     def __init__(self):
         # Load environment variables from .env file
-        load_dotenv()
+        # load_dotenv()
         
         # Get Azure OpenAI configuration from .env
         self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
