@@ -4,55 +4,20 @@ import tempfile
 import streamlit as st
 from openai import AzureOpenAI
 from typing import List, Dict, Optional, Union
-from dotenv import load_dotenv
 
 class AzureDocumentAssistant:
     def __init__(self):
-        # Load environment variables from .env file
-        load_dotenv()
-        
-        # Get Azure OpenAI configuration from .env
+        # Get Azure OpenAI configuration from environment variables
         self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
         self.endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         self.assistant_id = os.getenv("AZURE_ASSISTANT_ID")
         self.vector_store_id = os.getenv("AZURE_VECTOR_STORE_ID")
-
-        # Check each configuration variable
-        self._check_config_variables()
 
         # Initialize Azure OpenAI client
         self._initialize_client()
 
         # Initialize session state
         self._initialize_session_state()
-
-    def _check_config_variables(self):
-        """Check for missing configuration variables"""
-        config_vars = {
-            "AZURE_OPENAI_API_KEY": self.api_key,
-            "AZURE_OPENAI_ENDPOINT": self.endpoint,
-            "AZURE_ASSISTANT_ID": self.assistant_id,
-            "AZURE_VECTOR_STORE_ID": self.vector_store_id
-        }
-        
-        missing_vars = [key for key, value in config_vars.items() if not value]
-        
-        if missing_vars:
-            self._show_config_error(missing_vars)
-
-    def _show_config_error(self, missing_vars: List[str]):
-        """Display configuration error message"""
-        st.error(f"❌ Missing configuration in .env file: {', '.join(missing_vars)}")
-        st.info("""
-        Please create a .env file in your project directory with the following variables:
-        ```
-        AZURE_OPENAI_API_KEY=your-api-key
-        AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com
-        AZURE_ASSISTANT_ID=your-assistant-id
-        AZURE_VECTOR_STORE_ID=your-vector-store-id
-        ```
-        """)
-        st.stop()
 
     def _initialize_client(self):
         """Initialize and test Azure OpenAI client connection"""
@@ -65,7 +30,7 @@ class AzureDocumentAssistant:
             self.client.models.list()
         except Exception as e:
             st.error(f"❌ Failed to connect to Azure OpenAI: {str(e)}")
-            st.info("Please check if your API key and endpoint are correct in the .env file.")
+            st.info("Please check if your API key and endpoint are correct.")
             st.stop()
 
     def _initialize_session_state(self):
@@ -295,20 +260,6 @@ class AzureDocumentAssistant:
 
 def main():
     """Main application function with improved error handling and UI"""
-    if not os.path.exists('.env'):
-        st.error("❌ .env file not found!")
-        st.info("""
-        Please create a .env file in your project directory with the following variables:
-        ```
-        AZURE_OPENAI_API_KEY=your-api-key
-        AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com
-        AZURE_ASSISTANT_ID=your-assistant-id
-        AZURE_VECTOR_STORE_ID=your-vector-store-id
-        ```
-        """)
-        st.stop()
-        
-
     st.set_page_config(
         page_title="📚 Advanced Document AI Assistant",
         page_icon="🤖",
@@ -317,6 +268,29 @@ def main():
     )
 
     try:
+        # Check if required environment variables are set
+        required_vars = ["AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT", "AZURE_ASSISTANT_ID", "AZURE_VECTOR_STORE_ID"]
+        missing_vars = [var for var in required_vars if not os.getenv(var)]
+        
+        if missing_vars:
+            st.error(f"❌ Missing environment variables: {', '.join(missing_vars)}")
+            st.info("""
+            Please set the following environment variables:
+            - AZURE_OPENAI_API_KEY
+            - AZURE_OPENAI_ENDPOINT
+            - AZURE_ASSISTANT_ID
+            - AZURE_VECTOR_STORE_ID
+            
+            You can set these in your terminal before running the script:
+            ```
+            export AZURE_OPENAI_API_KEY=your-api-key
+            export AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com
+            export AZURE_ASSISTANT_ID=your-assistant-id
+            export AZURE_VECTOR_STORE_ID=your-vector-store-id
+            ```
+            """)
+            st.stop()
+
         assistant = AzureDocumentAssistant()
         
         with st.sidebar:
@@ -401,7 +375,6 @@ def main():
                 
                 if ai_response:
                     st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
-
         chat_container = st.container()
         with chat_container:
             for msg in st.session_state.chat_history:
